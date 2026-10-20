@@ -3,7 +3,8 @@ import Link from "next/link";
 export default function ComingSoonPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* Header with Logo Long */}
+
+  
       <nav>
         <Link href="/" className="logo-link">
           <img

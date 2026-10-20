@@ -44,7 +44,7 @@ const STORY_ITEMS: StoryItem[] = [
 ];
 
 const HERO_LINE_1 = "Nusantara is Hurting.";
-const HERO_LINE_2_PRE = "Your Repost Won't Put Out the ";
+const HERO_LINE_2_PRE = "Awareness Won't Put Out the ";
 const HERO_LINE_2_FIRE = "Fire";
 const HERO_LINE_2_POST = ".";
 const TOTAL_CHARS =
@@ -64,6 +64,18 @@ export default function HomePage() {
   // 4. Section 3 Dramatic Scroll-Reveal State
   const whySectionRef = useRef<HTMLElement | null>(null);
   const [whyInView, setWhyInView] = useState(false);
+
+  // 5. Section 4 ("What is Save Nusantara?") Scroll-Reveal & S.A.V.E Pillar Cycle State
+  const aboutSectionRef = useRef<HTMLElement | null>(null);
+  const [aboutInView, setAboutInView] = useState(false);
+  const [activePillar, setActivePillar] = useState<number>(0);
+  const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
+
+  // 6. Section 5 ("Let's Save Our Nusantara.") Scroll-Reveal & Domino Effect State
+  const solutionSectionRef = useRef<HTMLElement | null>(null);
+  const [solutionInView, setSolutionInView] = useState(false);
+  const [activeDomino, setActiveDomino] = useState<number>(0);
+  const [hoveredDomino, setHoveredDomino] = useState<number | null>(null);
 
   // 7. Background Firewood Audio State
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -110,25 +122,48 @@ export default function HomePage() {
     return () => clearTimeout(timeoutId);
   }, [isLoading]);
 
-  // Observe Section 3 (#why) for dramatic entrance + continuous animations
+  // Observe Section 3 (#why), Section 4 (#about), and Section 5 (#solution)
   useEffect(() => {
-    const el = whySectionRef.current;
-    if (!el) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (!entry.isIntersecting) return;
+          if (entry.target === whySectionRef.current) {
             setWhyInView(true);
+          } else if (entry.target === aboutSectionRef.current) {
+            setAboutInView(true);
+          } else if (entry.target === solutionSectionRef.current) {
+            setSolutionInView(true);
           }
         });
       },
       { threshold: 0.18 }
     );
 
-    observer.observe(el);
+    if (whySectionRef.current) observer.observe(whySectionRef.current);
+    if (aboutSectionRef.current) observer.observe(aboutSectionRef.current);
+    if (solutionSectionRef.current) observer.observe(solutionSectionRef.current);
+
     return () => observer.disconnect();
   }, []);
+
+  // Cycle active S.A.V.E pillar when Section 4 is in view and not hovered
+  useEffect(() => {
+    if (!aboutInView || hoveredPillar !== null) return;
+    const interval = setInterval(() => {
+      setActivePillar((prev) => (prev + 1) % 4);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [aboutInView, hoveredPillar]);
+
+  // Cycle active Domino step when Section 5 is in view and not hovered
+  useEffect(() => {
+    if (!solutionInView || hoveredDomino !== null) return;
+    const interval = setInterval(() => {
+      setActiveDomino((prev) => (prev + 1) % 4);
+    }, 2400);
+    return () => clearInterval(interval);
+  }, [solutionInView, hoveredDomino]);
 
   // Background firewood audio initialization & first-interaction fallback
   useEffect(() => {
@@ -343,7 +378,7 @@ export default function HomePage() {
         </p>
 
         {/* Animated Writing Title */}
-        <h1 aria-label="Nusantara is Hurting. Your Repost Won't Put Out the Fire.">
+        <h1 aria-label="Nusantara is Hurting. Awareness Won't Put Out the Fire.">
           <span>{line1Text}</span>
           {typedCount > HERO_LINE_1.length && <br />}
           <span>{line2PreText}</span>
@@ -355,9 +390,7 @@ export default function HomePage() {
         </h1>
 
         <p className="hero-desc">
-          An independent, student-led non-profit movement delivering rapid,
-          direct-to-victim emergency relief across Indonesia. Work from your
-          heart.
+          Let's help the people that impacted by the fire.
         </p>
         <div className="hero-ctas">
           <Link href="/coming-soon" className="btn-sketch">
@@ -563,27 +596,104 @@ export default function HomePage() {
       <hr className="section-divider" />
 
       {/* 4. WHAT IS SAVE NUSANTARA & S.A.V.E */}
-      <section id="about" className="container">
+      <section
+        id="about"
+        ref={aboutSectionRef}
+        className={`container about-section ${aboutInView ? "in-view" : ""}`}
+      >
         <div className="identity-wrap">
           <div className="identity-doodle">
-            {/* n7.png: Clasping Hands */}
-            <img
-              src="/assets/n7.png"
-              alt="Two hands reaching out to help"
-            />
-            <p className="handwritten" style={{ marginTop: "1rem" }}>
-              &quot;Work from your Heart.&quot;
-            </p>
+            <div className="hands-stage">
+              {/* Hand-drawn organic pulse rings around the clasping hands */}
+              <svg
+                className="hands-aura-svg"
+                viewBox="0 0 260 260"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  className="hands-ring-outer"
+                  d="M130 16C192 14 242 62 240 128C238 194 189 242 126 244C62 246 15 194 18 129C20 66 69 18 130 16Z"
+                  stroke="#121212"
+                  strokeWidth="1.6"
+                  strokeDasharray="7 7"
+                  strokeLinecap="round"
+                />
+                <path
+                  className="hands-ring-inner"
+                  d="M132 34C183 36 223 76 221 131C219 185 175 223 124 221C73 219 35 179 37 125C39 73 82 32 132 34Z"
+                  stroke="#D61C1C"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              {/* Floating warmth sparks rising from the clasped hands */}
+              <span
+                className="heart-spark"
+                style={{ left: "22%", top: "28%", animationDelay: "0s" }}
+              >
+                ✦
+              </span>
+              <span
+                className="heart-spark red"
+                style={{ right: "20%", top: "24%", animationDelay: "0.8s" }}
+              >
+                ♥
+              </span>
+              <span
+                className="heart-spark"
+                style={{ left: "50%", top: "12%", animationDelay: "1.5s" }}
+              >
+                ✦
+              </span>
+
+              {/* n7.png: Clasping Hands */}
+              <img
+                src="/assets/n7.png"
+                alt="Two hands reaching out to help"
+                className="hands-illustration"
+              />
+            </div>
+
+            <div className="heart-motto-wrap">
+              <p className="handwritten heart-motto-text">
+                &quot;Work from your Heart.&quot;
+              </p>
+              <svg
+                className="motto-underline-svg"
+                viewBox="0 0 210 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  className="motto-underline-path"
+                  d="M6 11C58 4 148 4 204 10"
+                  stroke="#D61C1C"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
           </div>
 
-          <div>
-            <span className="handwritten red-accent">
+          <div className="about-content-col">
+            <span className="handwritten red-accent about-eyebrow">
               What is Save Nusantara?
             </span>
-            <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>
-              Small Real Actions. Direct to Those in Pain.
+            <h2
+              className="about-headline"
+              style={{ fontSize: "2.2rem", marginBottom: "1rem" }}
+            >
+              Small Real Actions.{" "}
+              <span className="red-underline">Direct</span> to Those in Pain.
             </h2>
-            <p style={{ color: "var(--ink-muted)", marginBottom: "1rem" }}>
+            <p
+              className="about-lead"
+              style={{ color: "var(--ink-muted)", marginBottom: "1.1rem" }}
+            >
               <strong>Save Nusantara</strong> is an independent non-profit
               movement focused on <strong>Direct Repressive Relief</strong>
               —delivering rapid emergency aid straight to disaster victims while
@@ -591,35 +701,94 @@ export default function HomePage() {
               micro-actions.
             </p>
 
+            {/* Interactive S.A.V.E Spell-Out Indicator */}
+            <div className="save-spell-bar" aria-hidden="true">
+              {["S", "A", "V", "E"].map((letter, idx) => {
+                const isCurrent =
+                  (hoveredPillar !== null ? hoveredPillar : activePillar) ===
+                  idx;
+                return (
+                  <React.Fragment key={letter}>
+                    <button
+                      type="button"
+                      className={`save-spell-chip ${isCurrent ? "active" : ""}`}
+                      onMouseEnter={() => setHoveredPillar(idx)}
+                      onMouseLeave={() => setHoveredPillar(null)}
+                      onClick={() => setActivePillar(idx)}
+                    >
+                      {letter}
+                    </button>
+                    {idx < 3 && <span className="save-spell-dot">·</span>}
+                  </React.Fragment>
+                );
+              })}
+              <span className="save-spell-label">
+                — Core Pillars of Action
+              </span>
+            </div>
+
             <div className="save-pillars">
-              <div className="pillar-item">
-                <div className="pillar-letter">S</div>
-                <strong>Student-led Movement</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--ink-muted)" }}>
-                  Driven by youth and university students.
-                </p>
-              </div>
-              <div className="pillar-item">
-                <div className="pillar-letter">A</div>
-                <strong>Access for Everyone</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--ink-muted)" }}>
-                  Open for anyone to join, donate, and act.
-                </p>
-              </div>
-              <div className="pillar-item">
-                <div className="pillar-letter">V</div>
-                <strong>Voluntary</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--ink-muted)" }}>
-                  Powered by pure volunteerism from the heart.
-                </p>
-              </div>
-              <div className="pillar-item">
-                <div className="pillar-letter">E</div>
-                <strong>Execute with Little Things</strong>
-                <p style={{ fontSize: "0.85rem", color: "var(--ink-muted)" }}>
-                  Every small real step saves lives.
-                </p>
-              </div>
+              {[
+                {
+                  letter: "S",
+                  title: "Student-led Movement",
+                  desc: "Driven by youth and university students.",
+                  tag: "Youth Power",
+                },
+                {
+                  letter: "A",
+                  title: "Access for Everyone",
+                  desc: "Open for anyone to join, donate, and act.",
+                  tag: "Zero Barrier",
+                },
+                {
+                  letter: "V",
+                  title: "Voluntary",
+                  desc: "Powered by pure volunteerism from the heart.",
+                  tag: "100% Heart",
+                },
+                {
+                  letter: "E",
+                  title: "Execute with Little Things",
+                  desc: "Every small real step saves lives.",
+                  tag: "Micro-Action",
+                },
+              ].map((pillar, idx) => {
+                const isActive =
+                  (hoveredPillar !== null ? hoveredPillar : activePillar) ===
+                  idx;
+                return (
+                  <div
+                    key={pillar.letter}
+                    className={`pillar-item ${
+                      aboutInView ? "pillar-in-view" : ""
+                    } ${isActive ? "pillar-active" : ""}`}
+                    style={{ transitionDelay: `${0.12 + idx * 0.12}s` }}
+                    onMouseEnter={() => setHoveredPillar(idx)}
+                    onMouseLeave={() => setHoveredPillar(null)}
+                  >
+                    <div className="pillar-top-row">
+                      <div className="pillar-letter-badge">
+                        <span className="pillar-letter">{pillar.letter}</span>
+                      </div>
+                      <span className="pillar-tag">{pillar.tag}</span>
+                    </div>
+                    <strong>{pillar.title}</strong>
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "var(--ink-muted)",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      {pillar.desc}
+                    </p>
+                    <div className="pillar-ink-progress">
+                      <div className="pillar-ink-bar" />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -628,14 +797,21 @@ export default function HomePage() {
       <hr className="section-divider" />
 
       {/* 5. LET'S SAVE OUR NUSANTARA */}
-      <section id="solution" className="container">
+      <section
+        id="solution"
+        ref={solutionSectionRef}
+        className={`container solution-section ${
+          solutionInView ? "in-view" : ""
+        }`}
+      >
         <div className="solution-grid">
-          <div>
+          <div className="solution-left-col">
             <span className="handwritten red-accent">
               Let’s Save Our Nusantara.
             </span>
             <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>
-              How We Turn Pity Into Relief.
+              How We Turn Pity Into{" "}
+              <span className="red-underline">Relief</span>.
             </h2>
             <p style={{ color: "var(--ink-muted)", marginBottom: "1.5rem" }}>
               In our first 3 months, we aim to spark a{" "}
@@ -643,33 +819,113 @@ export default function HomePage() {
               organizations and local communities from passive awareness to
               direct action:
             </p>
-            <ul style={{ listStyle: "none", display: "grid", gap: "0.9rem" }}>
-              <li>
-                <strong>1. Micro-Action &amp; Rapid Crowdfunding:</strong>{" "}
-                Weekly Donations that anyone can afford.
-              </li>
-              <li>
-                <strong>2. Direct-to-Victim Distribution:</strong> Cutting red
-                tape so medicine, masks, and supplies arrive fast.
-              </li>
-              <li>
-                <strong>3. Radical Transparency:</strong> Bi-weekly public
-                reports (Every 2 Weeks) and weekly content updates.
-              </li>
-              <li>
-                <strong>4. Sparking the Domino Effect:</strong> Proving
-                independent student movements can lead real relief.
-              </li>
+
+            {/* Animated Domino Effect Chain-Reaction List */}
+            <ul className="domino-chain-list">
+              {[
+                {
+                  num: "01",
+                  title: "Micro-Action & Rapid Crowdfunding",
+                  desc: "Weekly Donations that anyone can afford.",
+                },
+                {
+                  num: "02",
+                  title: "Direct-to-Victim Distribution",
+                  desc: "Cutting red tape so medicine, masks, and supplies arrive fast.",
+                },
+                {
+                  num: "03",
+                  title: "Radical Transparency",
+                  desc: "Bi-weekly public reports (Every 2 Weeks) and weekly content updates.",
+                },
+                {
+                  num: "04",
+                  title: "Sparking the Domino Effect",
+                  desc: "Proving independent student movements can lead real relief.",
+                },
+              ].map((step, idx) => {
+                const isCurrent =
+                  (hoveredDomino !== null ? hoveredDomino : activeDomino) ===
+                  idx;
+                return (
+                  <li
+                    key={step.num}
+                    className={`domino-step-card ${
+                      solutionInView ? "domino-in-view" : ""
+                    } ${isCurrent ? "domino-active" : ""}`}
+                    style={{ transitionDelay: `${0.1 + idx * 0.14}s` }}
+                    onMouseEnter={() => setHoveredDomino(idx)}
+                    onMouseLeave={() => setHoveredDomino(null)}
+                  >
+                    <div className="domino-tile-badge" aria-hidden="true">
+                      <span className="domino-tile-num">{step.num}</span>
+                      <span className="domino-tile-pip" />
+                    </div>
+                    <div className="domino-step-body">
+                      <strong>
+                        {idx + 1}. {step.title}:
+                      </strong>{" "}
+                      <span>{step.desc}</span>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
-          <div className="sketch-box" style={{ textAlign: "center" }}>
-            <div className="doodle-pair">
-              {/* n4.png: First Aid Kit & n5.png: Supply Boxes */}
-              <img src="/assets/n4.png" alt="Emergency First Aid Kit" />
-              <img src="/assets/n5.png" alt="Direct Relief Supply Boxes" />
+          <div
+            className={`sketch-box relief-showcase-box ${
+              solutionInView ? "showcase-in-view" : ""
+            }`}
+            style={{ textAlign: "center" }}
+          >
+            <div className="dispatch-status-pill">
+              <span>DIRECT FIELD DISPATCH</span>
             </div>
-            <h3 style={{ marginTop: "1rem" }}>Direct Repressive Aid</h3>
+
+            <div className="doodle-pair">
+              {/* n4.png: First Aid Kit */}
+              <div className="relief-doodle-item doodle-kit">
+                <img src="/assets/n4.png" alt="Emergency First Aid Kit" />
+                <span className="doodle-caption-tag">Medical &amp; Masks</span>
+              </div>
+
+              {/* Animated Hand-Drawn Delivery Flow Arrow */}
+              <div className="relief-flow-connector" aria-hidden="true">
+                <svg
+                  width="54"
+                  height="28"
+                  viewBox="0 0 54 28"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    className="relief-flow-line"
+                    d="M4 14C18 6 34 22 48 14"
+                    stroke="#D61C1C"
+                    strokeWidth="2.2"
+                    strokeDasharray="4 4"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    className="relief-flow-head"
+                    d="M42 8L50 14L42 20"
+                    stroke="#D61C1C"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              {/* n5.png: Supply Boxes */}
+              <div className="relief-doodle-item doodle-boxes">
+                <img src="/assets/n5.png" alt="Direct Relief Supply Boxes" />
+                <span className="doodle-caption-tag">Relief Logistics</span>
+              </div>
+            </div>
+
+            <h3 style={{ marginTop: "1.1rem" }}>Direct Repressive Aid</h3>
             <p
               style={{
                 fontSize: "0.9rem",
@@ -681,6 +937,28 @@ export default function HomePage() {
               sent directly to affected families in Kalimantan and disaster
               zones.
             </p>
+
+            {/* Visual Domino Impact Meter */}
+            <div className="domino-impact-strip" aria-hidden="true">
+              <div className="domino-mini-bars">
+                {[0, 1, 2, 3].map((i) => {
+                  const isTriggered =
+                    (hoveredDomino !== null ? hoveredDomino : activeDomino) >=
+                    i;
+                  return (
+                    <span
+                      key={i}
+                      className={`domino-mini-piece ${
+                        isTriggered ? "triggered" : ""
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+              <span className="domino-impact-caption">
+                Straight to Ground Zero
+              </span>
+            </div>
           </div>
         </div>
       </section>
