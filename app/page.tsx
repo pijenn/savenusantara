@@ -170,11 +170,14 @@ export default function HomePage() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = 0.45;
+    audio.loop = true;
 
     const tryPlay = () => {
-      if (!audioRef.current || userManuallyPausedRef.current) return;
-      audioRef.current
-        .play()
+      const el = audioRef.current;
+      if (!el || userManuallyPausedRef.current) return;
+      el.loop = true;
+      el.volume = 0.45;
+      el.play()
         .then(() => {
           setIsPlayingAudio(true);
         })
@@ -191,21 +194,22 @@ export default function HomePage() {
       }
     };
 
-    window.addEventListener("pointerdown", handleFirstInteraction, {
-      passive: true,
-    });
-    window.addEventListener("keydown", handleFirstInteraction, {
-      passive: true,
-    });
-    window.addEventListener("scroll", handleFirstInteraction, {
-      passive: true,
-      once: true,
+    const interactionEvents = [
+      "pointerdown",
+      "click",
+      "touchstart",
+      "keydown",
+      "scroll",
+    ] as const;
+
+    interactionEvents.forEach((evt) => {
+      window.addEventListener(evt, handleFirstInteraction, { passive: true });
     });
 
     return () => {
-      window.removeEventListener("pointerdown", handleFirstInteraction);
-      window.removeEventListener("keydown", handleFirstInteraction);
-      window.removeEventListener("scroll", handleFirstInteraction);
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, handleFirstInteraction);
+      });
     };
   }, []);
 
@@ -215,6 +219,7 @@ export default function HomePage() {
 
     if (audio.paused) {
       userManuallyPausedRef.current = false;
+      audio.loop = true;
       audio.volume = 0.45;
       audio
         .play()
@@ -250,10 +255,24 @@ export default function HomePage() {
       {/* Background Firewood Audio */}
       <audio
         ref={audioRef}
-        src="/audio/Fire Wood Burning Sound Effect.mp3"
         loop
         preload="auto"
-      />
+        playsInline
+        onPlay={() => setIsPlayingAudio(true)}
+        onPause={() => setIsPlayingAudio(false)}
+        onEnded={() => {
+          if (audioRef.current && !userManuallyPausedRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(() => {});
+          }
+        }}
+      >
+        <source src="/audio/firewood.mp3" type="audio/mpeg" />
+        <source
+          src="/audio/Fire%20Wood%20Burning%20Sound%20Effect.mp3"
+          type="audio/mpeg"
+        />
+      </audio>
 
       {/* 8. ORGANIC FIRST-LOAD SPLASH OVERLAY */}
       {!removeLoaderDom && (
@@ -1109,6 +1128,22 @@ export default function HomePage() {
         </p>
       </footer>
 
+      {/* 7. FLOATING FIREWOOD AUDIO TOGGLE */}
+      <button
+        type="button"
+        onClick={toggleAudio}
+        className={`audio-floating-btn ${isPlayingAudio ? "playing" : ""}`}
+        aria-label={
+          isPlayingAudio
+            ? "Mute firewood burning sound"
+            : "Play firewood burning sound"
+        }
+      >
+        <span className="flame-icon" aria-hidden="true">
+          🔥
+        </span>
+        <span>{isPlayingAudio ? "Fire Sound: ON" : "Fire Sound: OFF"}</span>
+      </button>
     </>
   );
 }
