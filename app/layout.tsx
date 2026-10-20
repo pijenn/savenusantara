@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Save Nusantara — Work From Your Heart",
+  title: "Save Nusantara",
   description:
     "An independent, student-led non-profit movement delivering rapid, direct-to-victim emergency relief across Indonesia. Work from your heart.",
   icons: {
-    icon: "/assets/Logo.png",
+    icon: [
+      { url: "/assets/Logo.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/assets/Logo.png",
+    apple: "/assets/Logo.png",
   },
 };
 
